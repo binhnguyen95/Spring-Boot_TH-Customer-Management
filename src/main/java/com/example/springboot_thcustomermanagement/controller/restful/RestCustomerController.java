@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,5 +59,12 @@ public class RestCustomerController {
         }
         customerService.remove(id);
         return new ResponseEntity<>(customer.get(), HttpStatus.OK);
+    }
+
+    @GetMapping("/list")
+    public ModelAndView getAllCustomer() {
+        ModelAndView modelAndView = new ModelAndView("/ajax/list");
+        modelAndView.addObject("customers", customerService.findAll());
+        return modelAndView;
     }
 }
