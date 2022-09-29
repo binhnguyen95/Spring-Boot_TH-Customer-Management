@@ -9,39 +9,13 @@
 
       function getCustomer(customer) {
           return `<tr><td >${customer.name}</td><td >${customer.age}</td>
-                <td><a href="${customer.id}" onclick="editCustomer(this)">Edit</a></td>
+                <td><a href="${customer.id}" onclick="showFormUpdate(this)">Edit</a></td>
                 <td><a href="${customer.id}" onclick="deleteCustomer(this)">Delete</a></td>
                 </tr>`
       }
 
-      function addNewCustomer() {
-          //lay du lieu
-          let name = $('#name').val();
-          let age = $('#age').val();
-          let newCustomer = {
-              name: name,
-              age: age,
-          };
-          // goi ajax
-          $.ajax({
-              headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-              },
-              type: "POST",
-              data: JSON.stringify(newCustomer),
-              //tên API
-              url: "/api/customers",
-              //xử lý khi thành công
-              success: successHandle
 
-          });
-          //chặn sự kiện mặc định của thẻ
-          event.preventDefault();
-      }
-
-
-      function successHandle() {
+      function successHandler() {
           $.ajax({
               type: "GET",
               url: "/api/customers",
@@ -64,7 +38,33 @@
               }
           })
       }
-      successHandle();
+      successHandler();
+
+      function addNewCustomer() {
+          //lay du lieu
+          let name = $('#name').val();
+          let age = $('#age').val();
+          let newCustomer = {
+              name: name,
+              age: age,
+          };
+          // goi ajax
+          $.ajax({
+              headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+              },
+              type: "POST",
+              data: JSON.stringify(newCustomer),
+              //tên API
+              url: "/api/customers",
+              //xử lý khi thành công
+              success: successHandler
+
+          });
+          //chặn sự kiện mặc định của thẻ
+          event.preventDefault();
+      }
 
       function deleteCustomer(element){
           let id = element.getAttribute("href");
@@ -74,10 +74,55 @@
               url: `/api/customers/`+id,
               //xử lý khi thành công
               success: function (){
-                  successHandle()
+                  successHandler()
               }
           });
           //chặn sự kiện mặc định của thẻ
+          event.preventDefault();
+      }
+
+      function showFormUpdate(element){
+          let id = element.getAttribute("href");
+          console.log(id);
+          $.ajax({
+              headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+              },
+              type: "GET",
+              url: `/api/customers/${id}`,
+              success: function (data) {
+                  console.log(data);
+                  console.log(id);
+                  $('#id').attr('value',`${data.id}`)
+                  $('#name').attr('value',`${data.name}`)
+                  $('#age').attr('value',`${data.age}`)
+              }
+          })
+          event.preventDefault();
+      }
+
+      function updateCustomer() {
+          let id = $('#id').val();
+          let name= $('#name').val();
+          let age= $('#age').val();
+          let customer={
+              name:name,
+              age:age,
+          }
+          $.ajax({
+              headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+              },
+              type: "PUT",
+              url: `/api/customers/${id}`,
+              data:JSON.stringify(customer),
+              success: function (data) {
+                  console.log(id);
+                  successHandler();
+              }
+          })
           event.preventDefault();
       }
 
@@ -87,6 +132,9 @@
 <body>
 <form id="add-customer">
     <table>
+        <tr>
+            <td><input type="hidden" id="id" placeholder="name"></td>
+        </tr>
         <tr>
             <td>Name:</td>
             <td><input type="text" id="name" placeholder="name"></td>
@@ -98,6 +146,10 @@
         <tr>
             <td></td>
             <td><input type="submit" value="Add" onclick="addNewCustomer()"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Click to update" onclick="updateCustomer() "></td>
         </tr>
     </table>
 </form>
