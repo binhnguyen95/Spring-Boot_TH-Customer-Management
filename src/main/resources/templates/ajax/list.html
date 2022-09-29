@@ -3,26 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+  <script>
+
+      function getCustomer(customer) {
+          return `<tr><td >${customer.name}</td><td >${customer.age}</td>
+                <td><a href="${customer.id}" onclick="editCustomer(this)">Edit</a></td>
+                <td><a href="${customer.id}" onclick="deleteCustomer(this)">Delete</a></td>
+                </tr>`
+      }
+
+      function addNewCustomer() {
+          //lay du lieu
+          let name = $('#name').val();
+          let age = $('#age').val();
+          let newCustomer = {
+              name: name,
+              age: age,
+          };
+          // goi ajax
+          $.ajax({
+              headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+              },
+              type: "POST",
+              data: JSON.stringify(newCustomer),
+              //tên API
+              url: "/api/customers",
+              //xử lý khi thành công
+              success: successHandle
+
+          });
+          //chặn sự kiện mặc định của thẻ
+          event.preventDefault();
+      }
+
+
+      function successHandle() {
+          $.ajax({
+              type: "GET",
+              url: "/api/customers",
+              success: function (data) {
+                  let content =
+                      `<tr>
+                        <td>Name</td>
+                        <td>Age</td>
+                        <td>Edit</td>
+                        <td>Delete</td>
+                    </tr>`;
+                  if (data == null) {
+                      document.getElementById("customerList").innerHTML = content;
+                  } else {
+                      for (let i = 0; i < data.length; i++) {
+                          content += getCustomer(data[i]);
+                      }
+                      document.getElementById("customerList").innerHTML = content;
+                  }
+              }
+          })
+      }
+      successHandle();
+
+      function deleteCustomer(element){
+          let id = element.getAttribute("href");
+          $.ajax({
+              type: "DELETE",
+              //tên API
+              url: `/api/customers/`+id,
+              //xử lý khi thành công
+              success: function (){
+                  successHandle()
+              }
+          });
+          //chặn sự kiện mặc định của thẻ
+          event.preventDefault();
+      }
+
+  </script>
+
 </head>
 <body>
-
+<form id="add-customer">
+    <table>
+        <tr>
+            <td>Name:</td>
+            <td><input type="text" id="name" placeholder="name"></td>
+        </tr>
+        <tr>
+            <td>Age:</td>
+            <td><input type="text" id="age" placeholder="age"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Add" onclick="addNewCustomer()"></td>
+        </tr>
+    </table>
+</form>
 
 
 <h1>Customer List</h1>
 <table id="customerList">
-  <tr>
-    <td>Name</td>
-    <td>Age</td>
-    <td>Price</td>
-    <td>Delete</td>
-  </tr>
-  <th:block th:each="customer: ${customers}">
-    <tr>
-      <td th:text="${customer.name}"></td>
-      <td th:text="${customer.age}"></td>
-<!--      <td><a class="deleteSmartphone" th:href="${customer.getId()}">Delete</a></td>-->
-    </tr>
-  </th:block>
+
 </table>
 </body>
 </html>

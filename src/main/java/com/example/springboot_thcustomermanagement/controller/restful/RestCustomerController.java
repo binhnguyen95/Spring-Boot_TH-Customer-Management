@@ -52,7 +52,7 @@ public class RestCustomerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Customer> deleteCustomer(@PathVariable Long id) {
+    public ResponseEntity <Customer> deleteCustomer(@PathVariable Long id) {
         Optional<Customer> customer = customerService.findById(id);
         if (!customer.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -67,4 +67,5 @@ public class RestCustomerController {
         modelAndView.addObject("customers", customerService.findAll());
         return modelAndView;
     }
+
 }
